@@ -1,0 +1,3 @@
+Idle: 68 mA
+Playing: 75-80 mA
+Sleep: 47 mA

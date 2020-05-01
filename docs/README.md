@@ -1,178 +1,186 @@
-[For english, please click here!](README_EN.md)
+Alternative alternative TonUINO Firmware
+============================
+Small modification to the [alternative Tonuino Firmware](https://github.com/seisfeld/TonUINO), inspired by https://discourse.voss.earth/t/redesign-tonuino-fuer-eine-maximale-standby-zeit/5691. This version allows the Tonuino to wake up from sleep using the play button.
+To this end, I hooked up the play button to D5 and use the firmware in this repo.
+![Wiring diagram](tonuino.png)
+In the current setup, this only works on an Arduino Nano Every, because it allows all digital pins to be used as interrupt pins. On a regular Nano,
+only pins D2 and D3 can be used as interrupt pins. So, to make this work with an regular Nano,
+the play button should be hooked up to D2 or D3, and the RX or TX input of the MP3 Player should be moved to another pin on the Nano.
+
 
 Alternative TonUINO Firmware
 ============================
 
-Dies ist meine alternative Firmware für das wundervolle [TonUINO](https://www.voss.earth/tonuino/) Projekt. Ziel ist hier nicht unbedingt 100%ige Funktionsgleichheit mit der original Firmware. Es wurden vielmehr für meinen Zweck interessante Funktionen hinzugefügt und desweiteren auch einige Punkte (erstmal?) ausgelassen. Im großen und ganzen macht es einfach Spaß, sich mit der TonUINO Plattform auszutoben, ich bin deswegen auch viel in der [TonUINO Community](https://discourse.voss.earth/) aktiv. Schaut doch einfach mal vorbei - ihr findet dort viele Bauvorschläge, Hacks und Informationen rund um den TonUINO.
+This is my alternative firmware for the wonderful [TonUINO](https://www.voss.earth/tonuino/) project. The goal of this firmware is not to implement 100% the same features as the original firmware. I more or less just added what fits my use case and i also removed (for now?) some stuff i currently don't really need. Overall it's just fun to play around with TonUINO, which is also the reason why i am very active in the [TonUINO Community](https://discourse.voss.earth/). Make sure you drop by, there is lots of stuff to discover.
 
-**Die Firmware wird "as-is" zur Verfügung gestellt. Wenn jemand die Firmware in seinem TonUINO einsetzt, freue ich mich natürlich darüber. Ich kann allerdings keinen Support bieten.**
+**The firmware is provided "as-is". I'm happy if all this is useful for anyone else, but can't offer support.**
 
-## Inhalt
-- [Funktionsübersicht](https://github.com/seisfeld/TonUINO#funktionsübersicht)
-- [Tastenbelegung](https://github.com/seisfeld/TonUINO#tastenbelegung)
-- [PIN Code](https://github.com/seisfeld/TonUINO#pin-code)
-- [Ordnerstruktur auf der SD Karte](https://github.com/seisfeld/TonUINO#ordnerstruktur-auf-der-sd-karte)
-- [Audio Meldungen](https://github.com/seisfeld/TonUINO#audio-meldungen)
-  - [Audio Meldungen herunterladen](https://github.com/seisfeld/TonUINO#audio-meldungen-herunterladen)
-  - [Audio Meldungen selbst erzeugen](https://github.com/seisfeld/TonUINO#audio-meldungen-selbst-erzeugen)
-      - [Audio Meldungen mit say und ffmpeg erzeugen](https://github.com/seisfeld/TonUINO#audio-meldungen-mit-say-und-ffmpeg-erzeugen)
-      - [Audio Meldungen mit Amazon Polly erzeugen](https://github.com/seisfeld/TonUINO#audio-meldungen-mit-amazon-polly-erzeugen)
-      - [Audio Meldungen mit dem Cloud text-to-speech Service von Google erzeugen](https://github.com/seisfeld/TonUINO#audio-meldungen-mit-dem-cloud-text-to-speech-service-von-google-erzeugen)
-      - [Hilfe und weitere Optionen](https://github.com/seisfeld/TonUINO#hilfe-und-weitere-optionen)
-- [Titelansagen in MP3-Dateien einfügen](https://github.com/seisfeld/TonUINO#titelansagen-in-mp3-dateien-einfügen)
-  - [Funktionsweise](https://github.com/seisfeld/TonUINO#funktionsweise)
-  - [Hilfe und weitere Optionen](https://github.com/seisfeld/TonUINO#hilfe-und-weitere-optionen-1)
-- [Lizenz](https://github.com/seisfeld/TonUINO#lizenz)
+## Table Of Contents
+- [Features](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#features)
+- [Button Cheat Sheet](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#button-cheat-sheet)
+- [PIN Code](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#pin-code)
+- [SD Card Folder Structure](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#sd-card-folder-structure)
+- [Audio Messages](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#audio-messages)
+  - [Download the audio messages](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#download-the-audio-messages)
+  - [Create the audio messages yourself](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#create-the-audio-messages-yourself)
+      - [Create audio messages using say and ffmpeg](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#create-audio-messages-using-say-and-ffmpeg)
+      - [Create audio messages using Amazon Polly](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#create-audio-messages-using-amazon-polly)
+      - [Create audio messages using Googles text-to-speech service](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#create-audio-messages-using-googles-text-to-speech-service)
+      - [Help and additional options](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#help-and-additional-options)
+- [Add Lead-In Messages To mp3 Files](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#add-lead-in-messages-to-mp3-files)
+  - [How it works](hhttps://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#how-it-works)
+  - [Help and additional options](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#help-and-additional-options-1)
+- [License](https://github.com/seisfeld/TonUINO/blob/master/docs/README_EN.md#license)
 
-## Funktionsübersicht
+## Features
 
-- Standard Abspielmodi: Hörspiel, Album, Party, Lieblingsfolge und Hörbuch.
-- Erweiterte Abspielmodi: Virtuelle Ordner für die Modi Hörspiel, Album und Party.
-- Nächster/Vorheriger Titel sowohl in den Standard Abspielmodi Album, Party und Hörbuch - als auch bei der Nutzung von virtuellen Ordnern in den Modi Album und Party.
-- Der aktuell laufende Titel kann dauerhaft wiederholt werden.
-- Speichert die Ordnerverknüpfungen, Abspielmodi etc. auf den NFC Tags/Karten.
-- Unterstützung für MIFARE Classic (Mini, 1K & 4K) Tags/Karten.
-- Unterstützung für MIFARE Ultralight / Ultralight C Tags/Karten.
-- Unterstützung für NTAG213/215/216 Tags/Karten.
-- Debugausgabe auf der seriellen Konsole.
-- Einstellungen werden im EEPROM gespeichert.
-- Konfigurationsdialoge (NFC Tags/Karten anlernen/löschen, Elternmenü etc.) können abgebrochen werden.
-- NFC Tags/Karten können wieder komplett gelöscht werden.
-- Elternmenü um NFC Tags/Karten zu löschen und um Einstellungen wie Startlautstärke, Maximallautstärke, Menülautstärke, Equalizer und Abschalttimer (benötigt eine externe Schaltung oder eine passende Powerbank) vorzunehmen. Dort kann TonUINO auch von Hand abgeschaltet werden und es lassen sich der Hörbuchfortschritt und die Einstellugen zurücksetzen.
-- **Optional:** PIN Code um Elternfunktionen zu schützen.
-- **Optional:** Umstellbar auf 5 Tasten Bedienung.
-- **Optional:** Fernbedienbar über eine Infrarotfernbedienung (diese muss mindestens 7 Tasten haben), welche über das Elternmenü angelernt werden kann. Über die Fernbedienung ist es dann auch möglich die Tasten von TonUINO zu sperren.
-- **Optional:** Unterstützung einer Status LED.
-- **Optional:** Unterstützung von WS281x LED(s) als Status LED(s).
-- **Optional:** Unterspannungsabschaltung für z.B. die [CubieKid Platine](https://www.thingiverse.com/thing:3148200).
-- **Optional:** Unterstützung des [Pololu Power Switch (LV)](https://www.pololu.com/product/2808).
+- Standard playback modes: Story, album, party, single, story book.
+- Advanced playback modes: Virtual folders for the modes story, album and party.
+- Next/previous track in standard modes album, party and story book mode - as well as when using virtual folders in album and party mode.
+- The currently playing track can be repeated indefinitely.
+- Saves playback modes etc. directly to the NFC tags/cards.
+- Supports MIFARE Classic (Mini, 1K & 4K) tags/cards.
+- Supports MIFARE Ultralight / Ultralight C tags/cards.
+- Supports NTAG213/215/216 tags/cards.
+- Debug output to the serial console.
+- Preferences are stored in EEPROM.
+- Setup dialogues (setup/erase NFC tags/cards, parents menu etc.) can be aborted.
+- NFC tags/cards can be erased.
+- Parents menu to erase NFC tags/cards and to change preferences like startup volume, maximum volume, menu volume, equalizer and shutdown timer (requires an external circuit or compatible power bank). You can also manually trigger the shutdown there and reset the story book progress and preferences.
+- **Optional:** PIN to protect parental functions.
+- **Optional:** 5 Buttons.
+- **Optional:** IR remote control (incl. box lock). The remote (which needs at least 7 keys) can be learned in using the parents menu.
+- **Optional:** Vanilla status LED.
+- **Optional:** WS281x status LED(s).
+- **Optional:** Low voltage shutdown i.e. for the [CubieKid PCB](https://www.thingiverse.com/thing:3148200).
+- **Optional:** [Pololu Power Switch (LV)](https://www.pololu.com/product/2808) support.
 
-## Tastenbelegung
+## Button Cheat Sheet
 
-![Tastenbelegung](usage_cheat_sheet_de.png)
+![Tastenbelegung](usage_cheat_sheet_en.png)
 
 ## PIN Code
 
-Der (optional einschaltbare) PIN Code um die Elternfunktionen abzusichern lautet standard mässig
+The (optional) PIN Code to secure the parental functions is by default
 
 - `play/pause, vol-, vol+, play/pause`
 
-und kann im Sketch vor dem kompilieren geändert werden.
+and can be changed in the sketch before compile time.
 
-## Ordnerstruktur auf der SD Karte
+## SD Card Folder Structure
 
-Die Ordner auf der SD Karte, in denen eure MP3-Dateien abgelegt werden, müssen **01 bis 99** heissen - also **zweistellig** sein. Die Dateien in den Ordnern müssen mit einer **dreistelligen** Nummer beginnen - **001 bis 255** - können aber in der Regel [1] weitere Zeichen enthalten. Erlaubt wäre demnach `001.mp3` oder auch `001Lieblingslied.mp3`.
+The folders on the SD card, that will hold your mp3 files, need to be named **01 bis 99** - that is **two digits**. The mp3 files in these folders need to start with a **three digit zero padded number** like **001 to 255**, but may [1] contain more characters afterwards. Allowed would be `001.mp3` or `001MyTune.mp3`.
 
-Es hat sich bewährt, die gesammte Ordnerstruktur auf dem Comupter vorzubereiten und dann in einem Rutsch auf die SD Karte zu kopieren. So wird sichergestellt, daß alle Dateien auch in der richtigen Reihenfolge sind.
+It has been proven benefitial to prepare the whole folder structure on the computer and then copy everything to the SD card in one go. That way it's made sure the order of the files is correct.
 
-[1] Nicht alle DFPlayer Mini Module akzeptieren im Dateinamen weitere Zeichen hinter der dreistelligen Nummer. Hier geht dann leider nur `001.mp3`, `002.mp3` usw.
+[1] Not all derivates of the DFPlayer Mini module accept characters after the three digit number. In this case only `001.mp3`, `002.mp3` etc. would be allowed.
 
-## Audio Meldungen
+## Audio Messages
 
-TonUINO funktioniert nur korrekt, wenn ein **zur Firmware passendes** Set an Audio Meldungen auf der SD Karte vorhanden ist. Dies sind die Ordner **advert** und **mp3**.
+TonUINO only functions correctly, when there is the correct (**as in matches the firmware**) set of audio messages on the SD card. These are the folders **advert** and **mp3**.
 
-### Audio Meldungen herunterladen
+### Download the audio messages
 
-Die Audio Meldungen sind mit Amazon Polly generiert worden und können in verschiedenen Sprachen heruntergeladen werden:
+The audio messages have been generated with Amazon Polly and can be downloaded in several different languages:
 
-- Deutsch: [audio-messages-polly-de.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-de.zip)
-- Englisch: [audio-messages-polly-en.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-en.zip)
-- Niederländisch: [audio-messages-polly-nl.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-nl.zip)
+- German: [audio-messages-polly-de.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-de.zip)
+- English: [audio-messages-polly-en.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-en.zip)
+- Dutch: [audio-messages-polly-nl.zip](https://seisfeld.github.io/tonuino/audio-messages-polly-nl.zip)
 
-Die `.zip` Datei entpacken und die Ordner **advert** und **mp3** auf die SD Karte kopieren. Fertig.
+Extract the `.zip` file and copy the folders **advert** and **mp3** to the SD Card. Done.
 
-### Audio Meldungen selbst erzeugen
+### Create the audio messages yourself
 
-Das passende Set an Audio Meldungen lässt sich auch jederzeit mit dem beigelegten Python Skript `create_audio_messages.py` erzeugen. Hier sind dann auch weitere text-to-speech Engines möglich wenn ihr möchtet (siehe unten). Das Skript kann sowohl **deutsche**, **englische** als auch **niederländische** Audio Meldungen erzeugen (unterstützt wird ebenfalls **französisch**, es liegt dafür allerdings momentan keine Quelldatei bei). Es ist unter macOS, Linux und Windows getested, und benötigt **Python 3** und ggf. **ffmpeg**.
+If you want to, you can as well create the matching set of audio messages yourself, using the `create_audio_messages.py` python script from this repo. This way then also offers different text-to-speech engines if you like (see below). The script can create **german**, **english** as well as **dutch** audio messages (**french** is also supported, but there is currently no source file included). It is tested on macOS, Linux and Windows, and requires `Python 3` and `ffmpeg`.
 
-Unter Linux kann Python 3 mit dem zur Distribution gehörenden Paketmanager installiert werden. macOS Nutzer benutzen z.B. [Homebrew](https://brew.sh): `brew install python` und für Windows kann es [hier heruntergeladen werden](https://www.python.org/downloads/windows/).
+Install Python 3 using your favorite package manager on Linux, macOS users can use [Homebrew](https://brew.sh): `brew install python` and for Windows it can be [downloaded here](https://www.python.org/downloads/windows/).
 
-Das Skript unerstützt dabei die Nutzung von drei text-to-speech Engines:
+The script is able utilize three text-to-speech engines:
 
-- Lokal - nur unter macOS - mit den Tools `say` und `ffmpeg`. Sofern man einen Mac hat ist dieser Weg schnell, einfach und dauerhaft kostenlos.
-- Über das Internet mit Amazon Polly, dem text-to-speech Service von Amazon.
-- Über das Internet mit Hilfe des Cloud text-to-speech Service von Google.
+- Locally - on macOS only - using the tools `say` and `ffmpeg`. If you have a Mac this method is fast, simple and free of charge. 
+- Over the internet using Amazon Polly, the text-to-speech service of Amazon.
+- Over the internet using Googles Cloud text-to-speech service.
 
-Für die Anzahl der benötigten Meldungen ist die Nutzung der Services von Amazon ([Preise](https://aws.amazon.com/de/polly/pricing/)) bzw. Google ([Preise](https://cloud.google.com/text-to-speech/pricing)) erstmal kostenlos. Für beide Services muss man allerdings erst einen Account anlegen, ist dann das Freikontingent irgendwann einmal aufgebraucht fallen Kosten im Bereich von ein paar Cent an.
+The amount of messages you need to create, is covered by the free tiers of the respective services - Amazon ([pricing](https://aws.amazon.com/de/polly/pricing/)) or Google ([pricing](https://cloud.google.com/text-to-speech/pricing)). You need to create an account for both and once the free tier is used up, the costs are just a few cents.
 
-#### Audio Meldungen mit `say` und `ffmpeg` erzeugen
+#### Create audio messages using `say` and `ffmpeg`
 
-Neben dem Tool `say` (ist Teil von macOS) wird hier noch `ffmpeg` benötigt.
+In addition to `say` (part of macOS) you also need `ffmpeg`.
 
-1. `ffmpeg` installieren, z.B. via [Homebrew](https://brew.sh): `brew install ffmpeg`
-2. In den Ordner wechseln wo ihr die `.zip` Datei von GitHub entpackt, bzw. das Repository gecloned habt.
-3. `python3 tools/create_audio_messages.py --use-say` ausführen.
-4. Kopiert nun den Inhalt des Ordners **sd-card** auf die SD Karte. Fertig.
+1. Install `ffmpeg`, i.e. via [Homebrew](https://brew.sh): `brew install ffmpeg`
+2. Change into the folder where you unzipped the `.zip` from GitHub or where you cloned the repo to.
+3. Run `python3 tools/create_audio_messages.py --use-say --lang=en`.
+4. Copy the contents of the folder **sd-card** to the SD Card. Done.
 
-#### Audio Meldungen mit Amazon Polly erzeugen
+#### Create audio messages using Amazon Polly
 
-1. Auf der [AWS](https://aws.amazon.com/) Webseite einen Account anlegen und Access Keys erzeugen.
-2. Das Tool `aws` [installieren](https://docs.aws.amazon.com/de_de/cli/latest/userguide/cli-chap-install.html) (Windows / Linux), macOS z.B. via [Homebrew](https://brew.sh): `brew install awscli`.
-3. Das Tool `aws` [konfigurieren](https://docs.aws.amazon.com/de_de/cli/latest/userguide/cli-chap-configure.html).
-4. In den Ordner wechseln wo ihr die `.zip` Datei von GitHub entpackt, bzw. das Repository gecloned habt.
-5. `python3 tools/create_audio_messages.py --use-amazon` ausführen.
-6. Kopiert nun den Inhalt des Ordners **sd-card** auf die SD Karte. Fertig.
+1. Go to the [AWS](https://aws.amazon.com/) website, create an account and the respective access keys.
+2. [Install](https://docs.aws.amazon.com/en_us/cli/latest/userguide/cli-chap-install.html) (Windows / Linux) the `aws` command line tool. On macOS i.e. via [Homebrew](https://brew.sh): `brew install awscli`.
+3. [Configure](https://docs.aws.amazon.com/en_us/cli/latest/userguide/cli-chap-configure.html) the the `aws` command line tool.
+4. Change into the folder where you unzipped the `.zip` from GitHub or where you cloned the repo to.
+5. Run `python3 tools/create_audio_messages.py --use-amazon --lang=en`.
+6. Copy the contents of the folder **sd-card** to the SD Card. Done.
 
-#### Audio Meldungen mit dem Cloud text-to-speech Service von Google erzeugen
+#### Create audio messages using Googles text-to-speech service
 
-1. Auf Googles [Cloud text-to-speech](https://cloud.google.com/text-to-speech/) Webseite einen Account anlegen und einen API-Key erzeugen.
-2. In den Ordner wechseln wo ihr die `.zip` Datei von GitHub entpackt, bzw. das Repository gecloned habt.
-3. `python3 tools/create_audio_messages.py --use-google-key=ABCD` ausführen.
-4. Kopiert nun den Inhalt des Ordners **sd-card** auf die SD Karte. Fertig.
+1. Go to Googles [Cloud text-to-speech](https://cloud.google.com/text-to-speech/) website, create an account and API key.
+2. Change into the folder where you unzipped the `.zip` from GitHub or where you cloned the repo to.
+4. Run `python3 tools/create_audio_messages.py --use-google-key=ABCD --lang=en`.
+5. Copy the contents of the folder **sd-card** to the SD Card. Done.
 
-#### Hilfe und weitere Optionen
+#### Help and additional options
 
-Das Python Skript hat noch einige weitere Funktionen. Eine Übersicht gibt:
+The python script offers additional options, run the following command to get an overview:
 
 - `python3 tools/create_audio_messages.py --help`
 
-## Titelansagen in MP3-Dateien einfügen
+## Add Lead-In Messages To mp3 Files
 
-Im Hörspielmodus gibt es das Problem, daß man beim Auflegen der Karte nicht weiß, welche Folge abgespielt wird. Spielt man z.B. *Benjamin Blümchen* ab, dann kommt immer zuerst der Titelsong, der sich bei allen Folgen gleich anhört.
+In story mode there is the problem that when playing a card, one does not know which episode is played. If you play for example *Benjamin the Elephant*, then you'll always hear the title song first, which sounds the same in all episodes.
 
-Das Python Skript `add_lead_in_messages.py` fügt der MP3-Datei eine Titelansage wie z.B. *Benjamin Blümchen im Urlaub* hinzu. Wenn man eine andere Folge hören möchte, kann man dann einfach nochmal die *Benjamin Blümchen* Karte auflegen. Es ist unter macOS getested, sollte aber mit minimalem Aufwand auch unter Windows / Linux laufen - wenn alle Abhängigkeiten erfüllt werden.
+The python script `add_lead_in_messages.py` adds a lead-in message to the mp3 file, such as *Benjamin the Elephant on vacation*. If you want to hear a different episode, then you can just show the *Benjamin the Elephant* card again. It is tested on macOS, but you should be able to run it on Windows / Linux with minimal effort - given you resolve the dependencies.
 
-### Funktionsweise
+### How it works
 
-Angenommen man hat einen Ordner mit folgendem Inhalt:
+Suppose you have a folder with the following content:
 
 ```
-+- 04_Benjamin Blümchen
-   +- Benjamin Blümchen hat Geburtstag.mp3
-   +- Benjamin Blümchen im Urlaub.mp3
-   +- Benjamin Blümchen als Pilot.mp3
++- 04_Benjamin the Elephant
+   +- Benjamin the Elephant has his birthday.mp3
+   +- Benjamin the Elephant on vacation.mp3
+   +- Benjamin the Elephant as a pilot.mp3
 ```
 
-Dann kann man mit folgendem Aufruf MP3-Dateien mit Ansagen generieren (Beispiel):
+Then you can use the following command to generate mp3 files with lead-in messages (example):
 
-    python3 tools/add_lead_in_messages.py -i '04_Benjamin Blümchen' -o /Volumes/TonUINO/04 --google-key=ABCD --add-numbering
+    python3 tools/add_lead_in_messages.py -i '04_Benjamin the Elephant' -o /Volumes/TonUINO/04 --google-key=ABCD --add-numbering
 
-Was dann passiert:
+What happened:
 
-- Es werden neue MP3-Dateien mit den Ansagen erzeugt. Man kann dabei auch optional direkt auf die SD-Karte schreiben (wie im Beispiel).
-- Die Original-Dateien werden dabei nicht geändert.
-- Die MP3-Dateien werden nicht neu enkodiert (also kein Qualitätsverlust).
-- Auf Wunsch werden die MP3-Dateien kompatibel zum DFPlayer Mini numeriert. Also z.B. `001_Benjamin Blümchen hat Geburtstag.mp3` (Parameter `--add-numbering`)
-- Das Skript unerstützt dabei die Nutzung von drei text-to-speech Engines:
-  - Lokal - nur unter macOS - mit den Tools `say` und `ffmpeg`. (Parameter `--use-say`)
-  - Über das Internet mit Amazon Polly, dem text-to-speech Service von Amazon. (Parameter `--use-amazon`)
-  - Über das Internet mit Hilfe des Cloud text-to-speech Service von Google. (Parameter `--google-key=ABCD`)
+- New mp3 files are generated including the lead-in messages. You can also write directly to the SD card (as in the example).
+- The original mp3 files are not touched.
+- The mp3 files are not re-encoded (so no quality loss).
+- Optionally, the mp3 files are numbered to be compatible with DFPlayer Mini. For example `001_Benjamin the Elephant has his birthday.mp3` (parameter `--add-numbering`)
+- The script is able utilize three text-to-speech engines:
+  - Locally - on macOS only - using the tools `say` and `ffmpeg`. (parameter `--use-say`)
+  - Over the internet using Amazon Polly, the text-to-speech service of Amazon. (parameter `--use-amazon`)
+  - Over the internet using Googles Cloud text-to-speech service. (parameter `--google-key=ABCD`)
 
-Das Ergebnis sieht dann so aus:
+The result looks like this:
 
 ```
 +- /Volumes/TonUINO/04
-   +- 001_Benjamin Blümchen hat Geburtstag.mp3
-   +- 002_Benjamin Blümchen im Urlaub.mp3
-   +- 003_Benjamin Blümchen als Pilot.mp3
+   +- 001_Benjamin the Elephant has his birthday.mp3
+   +- 002_Benjamin the Elephant on vacation.mp3
+   +- 003_Benjamin the Elephant as a pilot.mp3
 ```
 
-#### Hilfe und weitere Optionen
+### Help and additional options
 
-Das Python Skript hat noch einige weitere Funktionen. Eine Übersicht gibt:
+The python script offers additional options, run the following command to get an overview:
 
 - `python3 tools/add_lead_in_messages.py --help`
 
-## Lizenz
+## License
 
-GPL v3. Siehe [LICENSE](../LICENSE.md).
+GPL v3. See [LICENSE](../LICENSE.md).

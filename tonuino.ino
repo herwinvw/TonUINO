@@ -302,7 +302,7 @@ const uint8_t statusLedMaxBrightness = 20;          // max brightness of ws281x 
 const uint8_t shutdownPin = 7;                      // pin used to shutdown the system
 const uint8_t nfcResetPin = 9;                      // used for spi communication to nfc module
 const uint8_t nfcSlaveSelectPin = 10;               // used for spi communication to nfc module
-const uint8_t button0Pin = A0;                      // middle button
+const uint8_t button0Pin = 5;                       // middle button
 const uint8_t button1Pin = A1;                      // right button
 const uint8_t button2Pin = A2;                      // left button
 #if defined FIVEBUTTONS
@@ -1615,6 +1615,23 @@ void printNfcTagType(MFRC522::PICC_Type nfcTagType) {
   Serial.print(nfcStatusMessage[0]);
 }
 
+void INT_PINisr(void) {
+  detachInterrupt(digitalPinToInterrupt(button0Pin));
+}
+
+void wakeUp(void){  
+  Serial.println(F("Wake up"));
+  
+  Serial.println(F("Wake up nfc"));
+  mfrc522.PCD_SoftPowerUp();
+  mfrc522.PCD_AntennaOn();
+
+  Serial.println(F("Wake up MP3 player"));
+  mp3.setPlaybackSource(DfMp3_PlaySource_Sd);
+  mp3.setVolume(playback.mp3CurrentVolume = preference.mp3StartVolume);
+  shutdownTimer(START); 
+}
+
 // starts, stops and checks the shutdown timer
 void shutdownTimer(uint8_t timerAction) {
   static uint64_t shutdownMillis = 0;
@@ -1636,6 +1653,7 @@ void shutdownTimer(uint8_t timerAction) {
         break;
       }
     case SHUTDOWN: {
+        Serial.println(F("Going to sleep"));
 #if defined STATUSLED ^ defined STATUSLEDRGB
         statusLedUpdate(OFF, 0, 0, 0, 0);
 #endif
@@ -1647,9 +1665,12 @@ void shutdownTimer(uint8_t timerAction) {
         mfrc522.PCD_AntennaOff();
         mfrc522.PCD_SoftPowerDown();
         mp3.sleep();
+        attachInterrupt(digitalPinToInterrupt(button0Pin), INT_PINisr,LOW);
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-        cli();
         sleep_mode();
+
+        sleep_disable();
+        wakeUp();
         break;
       }
     default: {
