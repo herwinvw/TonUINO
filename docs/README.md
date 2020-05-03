@@ -7,6 +7,7 @@ In the current setup, this only works on an Arduino Nano Every, because it allow
 only pins D2 and D3 can be used as interrupt pins. So, to make this work with an regular Nano,
 the play button should be hooked up to D2 or D3, and the RX or TX input of the MP3 Player should be moved to another pin on the Nano.
 
+I also set up a hard power down for the MFRC522, but it doesn't seem that that reduces power consumption significantly compared to the soft power down.
 
 Alternative TonUINO Firmware
 ============================

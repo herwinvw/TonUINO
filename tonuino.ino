@@ -437,6 +437,25 @@ void statusLedUpdate(uint8_t statusLedAction, uint8_t red, uint8_t green, uint8_
 void statusLedUpdateHal(uint8_t red, uint8_t green, uint8_t blue, int16_t brightness);
 #endif
 
+// extends MFRC522 with
+// - Hard Power Down, Power Up
+class MFRC522Ext : public MFRC522 {
+public:    
+  MFRC522Ext() : MFRC522() {};
+  MFRC522Ext(uint8_t rst) : MFRC522(rst) {};
+  MFRC522Ext(uint8_t ss, uint8_t rst) : MFRC522(ss, rst) {};
+  
+  void PCD_HardPowerDown(){
+    pinMode(_resetPowerDownPin, OUTPUT);
+    digitalWrite(_resetPowerDownPin, LOW);      
+  };
+  
+  void PCD_HardPowerUp(){
+    PCD_Init();
+  };
+};
+
+
 // used by DFPlayer Mini library during callbacks
 class Mp3Notify {
   public:
@@ -518,7 +537,7 @@ class Mp3Notify {
 };
 
 SoftwareSerial mp3Serial(mp3SerialRxPin, mp3SerialTxPin);                     // create SoftwareSerial instance
-MFRC522 mfrc522(nfcSlaveSelectPin, nfcResetPin);                              // create MFRC522 instance
+MFRC522Ext mfrc522(nfcSlaveSelectPin, nfcResetPin);                              // create MFRC522 instance
 DFMiniMp3<SoftwareSerial, Mp3Notify> mp3(mp3Serial);                          // create DFMiniMp3 instance
 ButtonConfig button0Config;                                                   // create ButtonConfig instance
 ButtonConfig button1Config;                                                   // create ButtonConfig instance
@@ -1623,9 +1642,8 @@ void wakeUp(void){
   Serial.println(F("Wake up"));
   
   Serial.println(F("Wake up nfc"));
-  mfrc522.PCD_SoftPowerUp();
-  mfrc522.PCD_AntennaOn();
-
+  mfrc522.PCD_HardPowerUp();
+  
   Serial.println(F("Wake up MP3 player"));
   mp3.setPlaybackSource(DfMp3_PlaySource_Sd);
   mp3.setVolume(playback.mp3CurrentVolume = preference.mp3StartVolume);
@@ -1662,8 +1680,7 @@ void shutdownTimer(uint8_t timerAction) {
 #else
         digitalWrite(shutdownPin, LOW);
 #endif
-        mfrc522.PCD_AntennaOff();
-        mfrc522.PCD_SoftPowerDown();
+        mfrc522.PCD_HardPowerDown();
         mp3.sleep();
         attachInterrupt(digitalPinToInterrupt(button0Pin), INT_PINisr,LOW);
         set_sleep_mode(SLEEP_MODE_PWR_DOWN);

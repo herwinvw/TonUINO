@@ -1,3 +1,13 @@
+V1: soft reset rc522
 Idle: 68 mA
 Playing: 75-80 mA
 Sleep: 47 mA
+
+V2: hard reset rc522
+Idle: 71 mA
+Playing: 85 mA
+Sleep: 50 mA
+
+V2: no reset rc522
+Idle: 65 mA
+Sleep: 59 mA
